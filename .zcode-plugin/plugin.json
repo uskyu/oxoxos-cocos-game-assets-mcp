@@ -1,0 +1,35 @@
+{
+  "name": "image-gen-mcp",
+  "description": "Game asset MCP: generate images via qweapi (gpt-image-2, supports reference-image editing), recognize images via vision model (gpt-5.6-sol), plus local post-processing (crop/resize/convert/sprite-sheet slicing).",
+  "description_i18n": {
+    "en": "Game asset MCP: generate images via qweapi (gpt-image-2, supports reference-image editing), recognize images via vision model (gpt-5.6-sol), plus local post-processing (crop/resize/convert/sprite-sheet slicing).",
+    "zh-CN": "游戏开发专属素材 MCP：qweapi 生图（gpt-image-2，支持参考图编辑）、视觉识图（gpt-5.6-sol，为无视觉模型补充眼睛）、本地后处理（裁剪/缩放/转换/精灵图切帧）。"
+  },
+  "version": "0.3.0",
+  "author": {
+    "name": "VSAI"
+  },
+  "keywords": [
+    "game",
+    "assets",
+    "image",
+    "mcp",
+    "vision",
+    "qweapi"
+  ],
+  "userConfig": {
+    "api_key": {
+      "title": "qweapi API Key",
+      "description": "qweapi.com API key. Leave empty to use the .env file in the plugin root.",
+      "type": "string",
+      "required": false
+    },
+    "vision_model": {
+      "title": "Vision model",
+      "description": "Vision model id used by describe_image (default: gpt-5.6-sol).",
+      "type": "string",
+      "default": "gpt-5.6-sol",
+      "required": false
+    }
+  }
+}
