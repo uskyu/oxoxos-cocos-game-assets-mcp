@@ -25,7 +25,7 @@ python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/update.py --p
 
 The updater refuses to overwrite a dirty worktree, creates a local backup tag, uses fast-forward Git updates, syncs the locked environment, and leaves credentials outside the repository. It never prints or migrates token values.
 
-After the user approves the reported persistent changes, supply the token to the installer through standard input and run `--apply --token-stdin --client auto`. Do not place the token in command arguments. If the current agent harness cannot safely pipe a secret without recording it in a tool transcript, write it directly with a secret-aware file API or ask for permission to use the client's secret UI—do not fall back to manual `.env` instructions.
+After the user approves the reported persistent changes, finish the MCP/client installation first with `--apply --defer-token --client auto`. Then ask the user to say “初始化 OXOXOS API 配置”. If the token is missing, show the portal onboarding steps. After the user intentionally provides it, supply it to the installer through standard input with `--apply --token-stdin --client auto`, then run `verify.py --live-models`. Do not place the token in command arguments. If the harness cannot safely pass a secret without recording it, use a secret-aware file API or the client's secret UI—do not fall back to manual `.env` instructions.
 
 ## Safety boundary
 
@@ -39,12 +39,12 @@ After the user approves the reported persistent changes, supply the token to the
 
 ## Workflow
 
-### 0. Check the token first (every install and every use)
+### 0. Separate installation from token onboarding
 
-Before proposing an install or running any remote (paid) tool, check whether a token is already configured. Use the read-only doctor or inspect the credential file location it reports; never read an existing secret value.
+Install the MCP and client entry first. A missing token must not block dependency installation or client configuration: use `--defer-token`. Before the first remote tool call, check whether a token is configured with the read-only doctor; never read an existing secret value.
 
-- Token already configured: proceed to the normal plan/apply flow.
-- Token missing: do not ask the user to edit files. Explain the onboarding flow instead:
+- Token already configured: run live model verification.
+- Token missing after installation: do not ask the user to edit files. Explain the onboarding flow instead:
   1. 前往 OXOXOS 门户注册或登录（默认 https://api.oxoxos.com）；
   2. 登录后，在左侧导航栏进入「令牌管理」；
   3. 创建一个访问令牌；

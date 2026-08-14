@@ -28,10 +28,11 @@ AI game asset generation, vision analysis, reference editing and sprite processi
 2. 阅读仓库内的 AGENTS.md 与 .agents/skills/install-oxoxos-cocos-game-assets-mcp/SKILL.md
 3. 先运行 python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/install.py --plan --client auto，
    向我展示一次完整计划，等待我批准
-4. 获批后自动完成：安装依赖（uv sync）、检测已安装的 MCP 客户端（Claude Code / Codex / ZCode / 通用客户端）、
-   备份并配置客户端、把 OXOXOS 令牌安全保存到仓库外的用户私有凭据文件、启动 MCP，
-   并用工具列表和 list_models 完成验证
-5. 全程不要让我手工编辑 .env、JSON 或 TOML 配置文件，也不要回显或记录令牌
+4. 获批后先运行 install.py --apply --defer-token --client auto，自动完成依赖安装、MCP 客户端检测、
+   配置备份和服务配置；令牌缺失不能阻塞插件安装
+5. 安装完成后提示我对你说“初始化 OXOXOS API 配置”；届时再检查令牌、引导我创建并提供令牌，
+   由你自动保存并用工具列表和 list_models 完成验证
+6. 全程不要让我手工编辑 .env、JSON 或 TOML 配置文件，也不要回显或记录令牌
 ```
 
 > [!TIP]
@@ -181,10 +182,11 @@ Please fully auto-install and configure the OXOXOS Cocos Game Assets MCP:
 2. Read AGENTS.md and .agents/skills/install-oxoxos-cocos-game-assets-mcp/SKILL.md
 3. Run python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/install.py --plan --client auto,
    show me the full plan and wait for my approval
-4. After approval, do everything automatically: install dependencies (uv sync), detect installed MCP clients
-   (Claude Code / Codex / ZCode / generic), back up and configure the client, store the OXOXOS token in a
-   per-user credential file outside the repository, start the MCP server, and verify with the tool list plus list_models
-5. Never ask me to edit .env, JSON or TOML by hand, and never echo or log the token
+4. After approval, run install.py --apply --defer-token --client auto first. Install dependencies, detect MCP clients,
+   back up and configure them; a missing token must not block MCP installation
+5. After installation, ask me to say “Initialize OXOXOS API configuration.” Then guide token creation if needed,
+   save the token automatically, and verify with the tool list plus list_models
+6. Never ask me to edit .env, JSON or TOML by hand, and never echo or log the token
 ```
 
 > [!TIP]

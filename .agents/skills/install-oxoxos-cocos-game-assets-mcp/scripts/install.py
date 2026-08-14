@@ -290,20 +290,35 @@ def plan(requested: list[str]) -> dict[str, Any]:
     }
 
 
-def apply(requested: list[str], token_stdin: bool, use_existing_token: bool) -> dict[str, Any]:
+def apply(
+    requested: list[str],
+    token_stdin: bool,
+    use_existing_token: bool,
+    defer_token: bool,
+) -> dict[str, Any]:
     report: dict[str, Any] = {"ok": False, "mode": "apply", "clients": []}
     if token_stdin:
         stored = store_token(read_token_from_stdin())
-        report.update(credential_file=str(stored), credential_updated=True)
+        report.update(credential_file=str(stored), credential_updated=True, token_configured=True)
     elif use_existing_token:
         stored, migrated_from = migrate_existing_credential()
         report.update(
             credential_file=str(stored),
             credential_updated=False,
             credential_migrated_from=str(migrated_from) if migrated_from else None,
+            token_configured=True,
+        )
+    elif defer_token:
+        report.update(
+            credential_file=str(credential_file()),
+            credential_updated=False,
+            token_configured=False,
+            token_setup_required=True,
         )
     else:
-        raise InstallError("自动安装需要 --token-stdin 或 --use-existing-token")
+        raise InstallError(
+            "自动安装需要 --defer-token、--token-stdin 或 --use-existing-token"
+        )
 
     report["dependencies"] = install_dependencies()
     clients = detect_clients(requested)
@@ -321,7 +336,12 @@ def apply(requested: list[str], token_stdin: bool, use_existing_token: bool) -> 
             item = {"client": name, "configured": False, "error": str(exc)}
         report["clients"].append(item)
     report["ok"] = all(item.get("configured") for item in report["clients"])
-    report["next"] = "run verify.py --live-models"
+    report["next"] = (
+        "ask the user to initialize OXOXOS API configuration, then run "
+        "install.py --apply --token-stdin --client auto and verify.py --live-models"
+        if defer_token
+        else "run verify.py --live-models"
+    )
     return report
 
 
@@ -337,6 +357,7 @@ def main() -> None:
         default=[],
     )
     token = parser.add_mutually_exclusive_group()
+    token.add_argument("--defer-token", action="store_true")
     token.add_argument("--token-stdin", action="store_true")
     token.add_argument("--use-existing-token", action="store_true")
     args = parser.parse_args()
@@ -345,7 +366,12 @@ def main() -> None:
         result = (
             plan(args.client)
             if args.plan
-            else apply(args.client, args.token_stdin, args.use_existing_token)
+            else apply(
+                args.client,
+                args.token_stdin,
+                args.use_existing_token,
+                args.defer_token,
+            )
         )
     except (InstallError, OSError, ValueError) as exc:
         result = {"ok": False, "error": str(exc)}
