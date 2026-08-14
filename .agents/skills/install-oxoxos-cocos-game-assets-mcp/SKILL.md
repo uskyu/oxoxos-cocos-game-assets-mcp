@@ -39,6 +39,20 @@ After the user approves the reported persistent changes, supply the token to the
 
 ## Workflow
 
+### 0. Check the token first (every install and every use)
+
+Before proposing an install or running any remote (paid) tool, check whether a token is already configured. Use the read-only doctor or inspect the credential file location it reports; never read an existing secret value.
+
+- Token already configured: proceed to the normal plan/apply flow.
+- Token missing: do not ask the user to edit files. Explain the onboarding flow instead:
+  1. 前往 OXOXOS 门户注册或登录（默认 https://api.oxoxos.com）；
+  2. 登录后，在左侧导航栏进入「令牌管理」；
+  3. 创建一个访问令牌；
+  4. 把令牌直接发给当前 AI 助手。
+- After the user hands over the token, the AI automatically saves it, configures the client, and verifies the MCP — the user does not edit `.env`, JSON, or TOML.
+
+The default portal is the official service. A fork of this repository can override the brand name and portal/token URLs (for example `OXOXOS_BRAND_NAME`, `OXOXOS_PORTAL_URL`, `OXOXOS_TOKEN_URL` in the fork's `.env`); the onboarding guide shown to the user adapts to those values automatically.
+
 ### 1. Read and inspect
 
 Read these files before proposing installation:
@@ -90,11 +104,9 @@ If uv is unavailable, explain how to install uv from its official documentation 
 
 ### 5. Configure the token safely
 
-The user creates a token at:
+If the user has not provided a token yet, guide them once through the onboarding flow from step 0: register or log in at the portal (default https://api.oxoxos.com), open 「令牌管理」 in the left sidebar, create a token, and send it to the AI. Then the agent runs the installer automatically to save the token, configure the client, and verify — the user never edits configuration files by hand.
 
-`https://api.oxoxos.com/console/token`
-
-Preferred methods, in order:
+Preferred methods for receiving the token, in order:
 
 1. the client's secret/user configuration UI;
 2. an environment variable already supplied by the user outside chat;

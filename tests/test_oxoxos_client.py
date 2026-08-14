@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import base64
+import json
 from contextlib import contextmanager
 
 import httpx
@@ -105,13 +106,82 @@ def test_generate_image_uses_dynamic_model_and_decodes_base64(monkeypatch) -> No
 def test_missing_token_error_is_safe_and_actionable(monkeypatch) -> None:
     monkeypatch.setattr(client, "API_KEY", "")
 
-    with pytest.raises(client.OxoxosApiError) as exc_info:
+    with pytest.raises(client.TokenSetupRequired) as exc_info:
         client._make_client()
 
     message = str(exc_info.value)
-    assert "OXOXOS_API_KEY" in message
-    assert "https://api.oxoxos.com/console/token" in message
+    assert isinstance(exc_info.value, client.OxoxosApiError)
+    assert "OXOXOS" in message
+    assert "https://api.oxoxos.com" in message
+    assert "令牌管理" in message
     assert "Bearer" not in message
+    assert "sk-" not in message.lower()
+
+
+def test_token_setup_guide_default_steps(monkeypatch) -> None:
+    monkeypatch.setattr(client, "BRAND_NAME", "OXOXOS")
+    monkeypatch.setattr(client, "PORTAL_URL", "https://api.oxoxos.com")
+    monkeypatch.setattr(client, "TOKEN_URL", "https://api.oxoxos.com/console/token")
+
+    guide = client.token_setup_guide()
+
+    assert guide["code"] == "token_setup_required"
+    assert guide["brand"] == "OXOXOS"
+    assert guide["portal_url"] == "https://api.oxoxos.com"
+    assert guide["token_url"] == "https://api.oxoxos.com/console/token"
+    assert len(guide["steps"]) == 4
+    assert guide["steps"][0] == "前往 https://api.oxoxos.com 注册或登录"
+    assert "令牌管理" in guide["steps"][1]
+    assert "创建" in guide["steps"][2]
+    assert "AI 会自动保存、配置并验证" in guide["steps"][3]
+    assert "install.py" in guide["ai_instruction"]
+    assert guide["customization"] == {
+        "brand_env": "OXOXOS_BRAND_NAME",
+        "portal_env": "OXOXOS_PORTAL_URL",
+        "token_env": "OXOXOS_TOKEN_URL",
+    }
+
+
+def test_token_setup_guide_uses_configured_brand_and_urls(monkeypatch) -> None:
+    monkeypatch.setattr(client, "BRAND_NAME", "MyFork")
+    monkeypatch.setattr(client, "PORTAL_URL", "https://portal.example.com")
+    monkeypatch.setattr(client, "TOKEN_URL", "https://portal.example.com/console/token")
+
+    guide = client.token_setup_guide()
+
+    assert guide["brand"] == "MyFork"
+    assert guide["portal_url"] == "https://portal.example.com"
+    assert guide["token_url"] == "https://portal.example.com/console/token"
+    assert guide["steps"][0] == "前往 https://portal.example.com 注册或登录"
+
+
+def test_token_setup_guide_never_exposes_a_token_value(monkeypatch) -> None:
+    monkeypatch.setattr(client, "BRAND_NAME", "OXOXOS")
+    monkeypatch.setattr(client, "PORTAL_URL", "https://api.oxoxos.com")
+    monkeypatch.setattr(client, "TOKEN_URL", "https://api.oxoxos.com/console/token")
+
+    serialized = json.dumps(client.token_setup_guide(), ensure_ascii=False)
+
+    assert "Bearer" not in serialized
+    assert "sk-" not in serialized.lower()
+    assert "secret" not in serialized.lower()
+    # Only environment-variable *names* may mention the token word.
+    assert "OXOXOS_API_KEY" not in serialized
+
+
+def test_missing_token_error_message_builds_from_guide(monkeypatch) -> None:
+    monkeypatch.setattr(client, "API_KEY", "")
+    monkeypatch.setattr(client, "BRAND_NAME", "ForkBrand")
+    monkeypatch.setattr(client, "PORTAL_URL", "https://portal.example.com")
+
+    with pytest.raises(client.TokenSetupRequired) as exc_info:
+        client._make_client()
+
+    message = str(exc_info.value)
+    assert message.startswith("未检测到 ForkBrand API 令牌")
+    assert "https://portal.example.com" in message
+    assert "不需要手工编辑配置" in message
+    assert "Git" in message
 
 
 def test_legacy_token_alias_has_lower_priority(monkeypatch) -> None:

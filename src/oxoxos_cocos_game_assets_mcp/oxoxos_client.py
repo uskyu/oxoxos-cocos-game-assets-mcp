@@ -57,6 +57,12 @@ API_KEY = _configured("OXOXOS_API_KEY", "QWAPI_API_KEY")
 PROXY = _configured("OXOXOS_PROXY", "QWAPI_PROXY")
 IMAGE_MODEL = _configured("OXOXOS_IMAGE_MODEL", "QWAPI_IMAGE_MODEL")
 VISION_MODEL = _configured("OXOXOS_VISION_MODEL", "QWAPI_VISION_MODEL")
+PORTAL_URL = _configured("OXOXOS_PORTAL_URL", default="https://api.oxoxos.com")
+TOKEN_URL = _configured(
+    "OXOXOS_TOKEN_URL",
+    default=f"{PORTAL_URL.rstrip('/')}/console/token",
+)
+BRAND_NAME = _configured("OXOXOS_BRAND_NAME", default="OXOXOS")
 
 SUPPORTED_QUALITY = {"low", "medium", "high", "auto"}
 SUPPORTED_SIZES = {"1024x1024", "1536x1024", "1024x1536", "auto"}
@@ -70,6 +76,35 @@ class OxoxosApiError(RuntimeError):
     """A safe, user-facing OXOXOS API error."""
 
 
+class TokenSetupRequired(OxoxosApiError):
+    """The MCP needs a token before remote tools can run."""
+
+
+def token_setup_guide() -> dict[str, Any]:
+    """Return customizable onboarding steps without exposing a token value."""
+    return {
+        "code": "token_setup_required",
+        "brand": BRAND_NAME,
+        "portal_url": PORTAL_URL,
+        "token_url": TOKEN_URL,
+        "steps": [
+            f"前往 {PORTAL_URL} 注册或登录",
+            "登录后，在左侧导航栏进入“令牌管理”",
+            "创建一个访问令牌",
+            "将令牌发送给当前 AI 助手；AI 会自动保存、配置并验证 MCP",
+        ],
+        "ai_instruction": (
+            "收到用户明确提供的令牌后，运行仓库安装 Skill 的 install.py，"
+            "通过安全输入传递令牌；不要回显令牌，也不要让用户手工编辑 .env、JSON 或 TOML。"
+        ),
+        "customization": {
+            "brand_env": "OXOXOS_BRAND_NAME",
+            "portal_env": "OXOXOS_PORTAL_URL",
+            "token_env": "OXOXOS_TOKEN_URL",
+        },
+    }
+
+
 @dataclass
 class GenerationResult:
     images: list[bytes]
@@ -78,9 +113,11 @@ class GenerationResult:
 
 def _make_client() -> httpx.Client:
     if not API_KEY:
-        raise OxoxosApiError(
-            "未配置 OXOXOS_API_KEY。请前往 https://api.oxoxos.com/console/token 创建令牌，"
-            "再通过客户端安全配置或插件设置添加；不要把令牌提交到 Git。"
+        guide = token_setup_guide()
+        steps = "；".join(guide["steps"])
+        raise TokenSetupRequired(
+            f"未检测到 {BRAND_NAME} API 令牌。{steps}。"
+            "不需要手工编辑配置，也不要把令牌提交到 Git。"
         )
     return httpx.Client(
         base_url=BASE_URL,

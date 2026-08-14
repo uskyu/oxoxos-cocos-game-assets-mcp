@@ -19,6 +19,8 @@ try:
     from . import image_processor as ip
     from .oxoxos_client import (
         OxoxosApiError,
+        TokenSetupRequired,
+        token_setup_guide,
     )
     from .oxoxos_client import (
         describe_image as api_describe_image,
@@ -33,6 +35,8 @@ except ImportError:  # Direct script execution from the repository.
     import image_processor as ip
     from oxoxos_client import (
         OxoxosApiError,
+        TokenSetupRequired,
+        token_setup_guide,
     )
     from oxoxos_client import (
         describe_image as api_describe_image,
@@ -85,7 +89,10 @@ def _safe_prefix(name: str) -> str:
 
 def _api_error(e: Exception) -> str:
     """把异常转成给 AI 的清晰错误信息（JSON 字符串）。"""
-    return json.dumps({"ok": False, "error": str(e)}, ensure_ascii=False)
+    payload = {"ok": False, "error": str(e)}
+    if isinstance(e, TokenSetupRequired):
+        payload["setup"] = token_setup_guide()
+    return json.dumps(payload, ensure_ascii=False)
 
 
 def _save_result(result, out_dir: Path, filename_prefix: str) -> list[str]:

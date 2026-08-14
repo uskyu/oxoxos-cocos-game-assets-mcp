@@ -5,7 +5,15 @@
 - Python 3.13 or newer for the current locked project
 - [uv](https://docs.astral.sh/uv/) recommended
 - an MCP-compatible client
-- an OXOXOS token from https://api.oxoxos.com/console/token
+- an OXOXOS token
+
+## Get a token
+
+1. Register or log in at the portal (default https://api.oxoxos.com).
+2. In the left sidebar, open 「令牌管理」.
+3. Create a token and hand it to your AI assistant — the agent saves, configures, and verifies it automatically. No manual `.env`/JSON/TOML editing.
+
+Forks of this repository can override brand and URLs via optional env vars: `OXOXOS_BRAND_NAME`, `OXOXOS_PORTAL_URL`, `OXOXOS_TOKEN_URL` (also in `.env.example`). The onboarding guide adapts to them.
 
 ## Install the repository
 
