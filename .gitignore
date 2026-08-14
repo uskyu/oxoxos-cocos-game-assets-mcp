@@ -12,5 +12,15 @@ wheels/
 # 密钥
 .env
 
-# 生成的素材（如需保留可去掉）
+# 生成的素材与测试产物
 assets/
+e2e_test_out/
+.coverage
+.pytest_cache/
+.ruff_cache/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

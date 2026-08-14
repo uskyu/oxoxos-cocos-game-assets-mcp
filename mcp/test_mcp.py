@@ -8,12 +8,12 @@
 import asyncio
 import json
 import os
-import sys
 
-from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-PROJECT = r"D:/VSAI/MCP/image-gen-mcp"
+from mcp import ClientSession, StdioServerParameters
+
+PROJECT = r"D:/VSAI/MCP/oxoxos-cocos-game-assets-mcp"
 ASSETS = os.path.join(PROJECT, "assets")
 
 
@@ -43,8 +43,7 @@ async def main() -> None:
         cwd=PROJECT,
         read_timeout_seconds=300,
     )
-    async with stdio_client(params) as (read, write):
-        async with ClientSession(read, write) as session:
+    async with stdio_client(params) as (read, write), ClientSession(read, write) as session:
             await session.initialize()
             print("== MCP 连接初始化成功 ==")
 

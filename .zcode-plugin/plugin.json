@@ -1,34 +1,44 @@
 {
-  "name": "image-gen-mcp",
-  "description": "Game asset MCP: generate images via qweapi (gpt-image-2, supports reference-image editing), recognize images via vision model (gpt-5.6-sol), plus local post-processing (crop/resize/convert/sprite-sheet slicing).",
+  "name": "oxoxos-cocos-game-assets-mcp",
+  "description": "Independent Cocos-oriented game asset MCP powered by OXOXOS: live model discovery, image generation, vision analysis, reference editing, and local sprite processing.",
   "description_i18n": {
-    "en": "Game asset MCP: generate images via qweapi (gpt-image-2, supports reference-image editing), recognize images via vision model (gpt-5.6-sol), plus local post-processing (crop/resize/convert/sprite-sheet slicing).",
-    "zh-CN": "游戏开发专属素材 MCP：qweapi 生图（gpt-image-2，支持参考图编辑）、视觉识图（gpt-5.6-sol，为无视觉模型补充眼睛）、本地后处理（裁剪/缩放/转换/精灵图切帧）。"
+    "en": "Independent Cocos-oriented game asset MCP powered by OXOXOS: live model discovery, image generation, vision analysis, reference editing, and local sprite processing.",
+    "zh-CN": "面向 Cocos Creator 与 AI 游戏开发的独立素材 MCP：接入 OXOXOS 动态模型广场，提供生图、识图、参考图编辑和本地精灵图处理。非 Cocos 官方项目。"
   },
-  "version": "0.3.0",
+  "version": "0.4.0",
   "author": {
-    "name": "VSAI"
+    "name": "VSAI / 0X0X0S"
   },
   "keywords": [
-    "game",
-    "assets",
-    "image",
-    "mcp",
+    "cocos",
+    "cocos-creator",
+    "game-development",
+    "game-assets",
+    "image-generation",
     "vision",
-    "qweapi"
+    "mcp",
+    "model-context-protocol",
+    "oxoxos"
   ],
   "userConfig": {
     "api_key": {
-      "title": "qweapi API Key",
-      "description": "qweapi.com API key. Leave empty to use the .env file in the plugin root.",
+      "title": "OXOXOS API Token",
+      "description": "Optional UI entry. The automated installer can securely store the token in the current user's private OXOXOS credential file instead.",
       "type": "string",
       "required": false
     },
-    "vision_model": {
-      "title": "Vision model",
-      "description": "Vision model id used by describe_image (default: gpt-5.6-sol).",
+    "image_model": {
+      "title": "Image model override",
+      "description": "Optional model id. Leave empty to discover a current image model from the OXOXOS marketplace.",
       "type": "string",
-      "default": "gpt-5.6-sol",
+      "default": "",
+      "required": false
+    },
+    "vision_model": {
+      "title": "Vision model override",
+      "description": "Optional model id. Leave empty to discover a current vision model from the OXOXOS marketplace.",
+      "type": "string",
+      "default": "",
       "required": false
     }
   }

@@ -1,104 +1,147 @@
-# image-gen-mcp — 游戏开发专属素材 MCP（ZCode 插件）
+# OXOXOS Cocos Game Assets MCP
 
-把 qweapi.com 的 OpenAI 兼容接口封装成 MCP 插件：**生图 + 识图 + 参考图编辑 + 本地后处理**，供 AI 全自主开发游戏时生成与管理素材。
+**AI game asset generation, vision analysis, reference editing, and sprite processing for Cocos Creator workflows.** Powered by the [OXOXOS API](https://api.oxoxos.com) and exposed through the Model Context Protocol (MCP).
 
-## 能力一览（9 工具 + 1 资源）
+> Independent community project. Not affiliated with or endorsed by Cocos. “Cocos” and “Cocos Creator” are trademarks of their respective owners.
 
-### 生图组（调用 qweapi API）
-| 工具 | 说明 |
+[中文](#中文快速开始) · [Installation](docs/installation.md) · [Security](SECURITY.md) · [Contributing](CONTRIBUTING.md)
+
+## Why this project
+
+A coding agent building a game often needs more than image generation. It must discover current models, inspect the result, edit from a reference, normalize dimensions, crop sprites, and deliver files into the game project. This MCP exposes that loop as tools that Claude Code, Codex, ZCode, and other MCP clients can call.
+
+## Features
+
+- **Live model discovery** — queries the OXOXOS model marketplace at runtime; model ids are not permanently hardcoded.
+- **Image generation** — OpenAI-compatible image endpoint with optional reference-image editing.
+- **Vision analysis** — lets a non-visual agent inspect a local image through a current vision-capable model.
+- **Local asset processing** — image info, crop, resize, convert, and sprite-sheet slicing through Pillow.
+- **Concurrent local tasks** — `wait=false` runs synchronous API calls in local background threads.
+- **Agent-guided installation** — a repository Skill can inspect Claude Code, Codex, ZCode, and generic MCP environments before configuring them.
+
+## Tools
+
+| Tool | Purpose |
 |---|---|
-| `list_models` | 列出可用的图像生成模型 |
-| `generate_image` | 生图（`gpt-image-2`），支持：`input_image` 参考图编辑、`wait=false` 后台异步 |
-| `check_task` | 查询后台异步任务（配合 `wait=false`，支持批量并发） |
+| `list_models` | Fetch current marketplace models and inferred capability hints |
+| `generate_image` | Generate or edit images; supports local background tasks |
+| `check_task` | Read local task status: `running`, `done`, or `error` |
+| `describe_image` | Analyze a local image and return text |
+| `get_image_info` | Read format, dimensions, color mode, and file size |
+| `crop_image` | Crop by `[left, top, right, bottom]` |
+| `resize_image` | Stretch, contain, or cover-resize |
+| `convert_image` | Convert PNG, JPEG, WebP, BMP, or GIF |
+| `slice_sprite_sheet` | Split a uniform sprite sheet into PNG frames |
 
-### 识图组（视觉，给无视觉模型补"眼睛"）
-| 工具 | 说明 |
-|---|---|
-| `describe_image` | 用视觉模型（默认 `gpt-5.6-sol`）识别图片并回答问题，返回文本 |
+Resource: `assets://list` lists files in the default local asset directory.
 
-> **设计原则**：若主模型本身支持看图（Claude/Gemini），直接用读图能力，无需本工具；
-> 若主模型无视觉（DeepSeek 等），由 MCP 内部完成多模态，返回文本给模型。
+## 中文快速开始
 
-### 后处理组（Pillow 本地执行，零 API 成本）
-| 工具 | 说明 |
-|---|---|
-| `get_image_info` | 查询格式/尺寸/颜色模式/文件大小 |
-| `crop_image` | `box=[left, top, right, bottom]` 裁剪 |
-| `resize_image` | 缩放，`mode`: `stretch` / `contain` 补边 / `cover` 填满居中裁剪（推荐） |
-| `convert_image` | 格式转换 png/jpeg/webp/bmp/gif；透明转 JPEG 需 `background` 颜色 |
-| `slice_sprite_sheet` | 精灵图按 `cols×rows` 均匀切帧 |
-
-### 资源
-- `assets://list` — 素材目录清单（AI 跟踪已有素材，避免重复生成）
-
-### 异步工作流（解决"同步等待浪费时间"）
-```
-generate_image(prompt, wait=false)  → 立即返回 {task_id}，后台线程生图
-主智能体继续开发，不等待
-generate_image(...) 再次批量提交   → 多个任务并发（qweapi 支持）
-check_task(task_id)                 → 需要素材时查询，done 后返回文件路径
-```
-
-## qweapi 探测结论（2026-08-09 实测）
-
-- `gpt-image-2` 支持 `model/prompt/size/quality/n` + `input_image`（参考图，实测可用）
-- ❌ `style`、`background: transparent` 被服务端拒绝；`output_format` 导致服务端断连
-- `gpt-5.6-sol` 视觉识图实测可用（chat/completions + image_url）
-- 请求 `1024x1024` 实际返回 **1254x1254**（size 是提示性的），生成后先 `get_image_info` 确认
-- 服务端偶发断连 → 客户端内置 3 次重试
-
-## 安装（作为 ZCode 插件）
-
-已注册进 ZCode 插件系统（市场 `game-dev`，插件 `image-gen-mcp@game-dev`），
-重启 ZCode 后自动生效。可在 **Settings → 插件管理** 看到，**Settings → MCP** 查看服务器状态（显示为插件内置）。
-
-若注册未生效，手动添加：**Settings → 插件管理 → Discover → `+` → 本地目录 → `D:\VSAI\MCP\image-gen-mcp`**。
-
-### 密钥配置（二选一）
-1. **插件设置**：插件详情页 → Advanced → 填 `api_key`（qweapi API Key）
-2. **.env 文件**：插件根目录 `.env`（已配置，见下）
-
-### .env 配置项
-| 变量 | 说明 | 默认 |
-|---|---|---|
-| `QWAPI_BASE_URL` | API 基地址 | `https://qweapi.com/v1` |
-| `QWAPI_API_KEY` | 密钥（插件 userConfig 优先，空则读 .env） | 必填 |
-| `QWAPI_PROXY` | 可选代理（如 Clash 7890），留空直连 | 空 |
-| `QWAPI_VISION_MODEL` | 识图模型 | `gpt-5.6-sol` |
-
-## 开发与测试
+### 1. 克隆并安装依赖
 
 ```bash
-cd D:\VSAI\MCP\image-gen-mcp
-uv sync                                   # 首次安装依赖
-uv run python mcp/test_api.py             # API 直连探测（消耗 1 次额度）
-uv run python mcp/test_mcp.py             # MCP 全链路测试（识图/参考图/异步/后处理）
+git clone https://github.com/uskyu/oxoxos-cocos-game-assets-mcp.git
+cd oxoxos-cocos-game-assets-mcp
+uv sync
 ```
 
-## 项目结构（对齐官方插件模板）
+仓库地址：<https://github.com/uskyu/oxoxos-cocos-game-assets-mcp>
 
-```
-image-gen-mcp/                  ← 插件根目录
-├── .zcode-plugin/plugin.json   # 插件清单（name/userConfig）
-├── .mcp.json                   # MCP 服务声明（${ZCODE_PLUGIN_ROOT} 相对路径）
-├── mcp/
-│   ├── server.py               # FastMCP 入口（9 工具 + 1 资源）
-│   ├── qweapi_client.py        # 生图/识图客户端
-│   ├── image_processor.py      # Pillow 后处理
-│   ├── test_api.py / test_mcp.py
-│   └── assets/                 # 素材输出（实际在插件根目录 assets/）
-├── .venv/                      # 虚拟环境（隔离依赖，uv 管理）
-├── assets/                     # 默认素材输出目录
-├── .env / .env.example         # 密钥配置
-└── README.md
+### 2. 创建 API 令牌
+
+- API 基础地址：`https://api.oxoxos.com`
+- 数据看板：`https://api.oxoxos.com/console`
+- 令牌管理：`https://api.oxoxos.com/console/token`
+
+令牌应通过客户端的安全配置或环境变量 `OXOXOS_API_KEY` 传递。不要把令牌发到聊天、写入源码或提交到 Git。
+
+### 3. 让 AI 全自动安装
+
+克隆仓库后，把以下提示词交给支持仓库 Skill 的 AI 编码客户端。用户只需提供一次令牌并批准安装计划，AI 应完成依赖、私有凭据、客户端配置和连通验证；不应要求用户手工编辑 `.env`、JSON 或 TOML：
+
+> 阅读 `AGENTS.md` 和 `.agents/skills/install-oxoxos-cocos-game-assets-mcp/SKILL.md`，运行安装器 `--plan --client auto` 并向我展示一次计划。经我确认并提供 OXOXOS 令牌后，通过标准输入把令牌交给安装器，自动保存到仓库外的用户私有凭据文件、安装依赖、备份并配置检测到的客户端、启动 MCP，并用工具列表和 `list_models` 完成验证。不要回显令牌，不要让我手工编辑配置，不要在未经确认时调用付费生图或识图。
+
+AI 自主安装不是静默破坏：修改用户配置前展示一次计划并获得授权；获批后应自动完成，不再把配置工作退回给用户。
+
+### 4. 手动安装
+
+详见 [`docs/installation.md`](docs/installation.md)：
+
+- [Claude Code](docs/clients/claude-code.md)
+- [OpenAI Codex](docs/clients/codex.md)
+- [ZCode](docs/clients/zcode.md)
+- [通用 MCP 客户端](docs/clients/generic.md)
+
+## Configuration
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `OXOXOS_BASE_URL` | OpenAI-compatible API base URL | `https://api.oxoxos.com/v1` |
+| `OXOXOS_API_KEY` | Access token | required |
+| `OXOXOS_IMAGE_MODEL` | Optional image model override | dynamically discovered |
+| `OXOXOS_VISION_MODEL` | Optional vision model override | dynamically discovered |
+| `OXOXOS_PROXY` | Optional HTTP proxy | empty |
+
+Deprecated `QWAPI_API_KEY`, `QWAPI_IMAGE_MODEL`, `QWAPI_VISION_MODEL`, and `QWAPI_PROXY` variables remain for one migration cycle. The old service base URL is not retained; use `OXOXOS_BASE_URL` for an explicit development override.
+
+### Dynamic model behavior
+
+The marketplace may change. `list_models` returns the current list and capability hints inferred from model metadata. Those hints are not a permanent guarantee. For a reproducible production workflow:
+
+1. call `list_models(force_refresh=true)`;
+2. select a model whose current documentation confirms the needed capability;
+3. pass its id explicitly to `generate_image` or `describe_image`.
+
+If `model` is left empty, the MCP chooses the first inferred candidate. You can also set local model overrides without committing them.
+
+## Update behavior
+
+Existing users can ask the repository Skill to run:
+
+```bash
+python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/update.py --plan
 ```
 
-## 给 AI 的素材工作流建议
+After approval, the updater refuses to overwrite uncommitted work, creates a local backup tag, pulls with `--ff-only`, runs `uv sync`, and leaves the per-user OXOXOS credential file untouched. It does not silently reset or roll back a failed update; it reports the backup tag for review.
 
+## Local task behavior
+
+`wait=false` does **not** create a server-side async OXOXOS job. It starts a local daemon thread, returns a task id, and stores status in memory. Tasks are lost when the MCP process restarts. Use it for concurrent requests within one client session, not durable job processing.
+
+## Development
+
+```bash
+uv sync --group dev
+uv run pytest
+uv run ruff check .
+python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/doctor.py --json
 ```
-生成:    generate_image(描述, quality, filename_prefix)     （批量可用 wait=false + check_task 并发）
-质检:    describe_image(图, "这张素材质量如何？风格是否统一？")
-编辑:    describe_image 发现问题 → generate_image(修改要求, input_image=原图)
-标准化:  get_image_info → resize_image(cover) → slice_sprite_sheet / crop_image
-跟踪:    assets://list
+
+Tests do not call paid generation endpoints. The legacy `mcp/test_api.py` and `mcp/test_mcp.py` are manual integration probes and can consume API credit; run them only after reviewing their behavior.
+
+## Repository layout
+
+```text
+.
+├── src/oxoxos_cocos_game_assets_mcp/       # publishable Python package
+├── mcp/                              # compatibility launchers and manual probes
+├── tests/                            # offline unit tests
+├── .agents/skills/                   # cross-agent installation Skill
+├── docs/clients/                     # client-specific installation guides
+├── .zcode-plugin/plugin.json         # ZCode plugin manifest
+├── .mcp.json                         # bundled ZCode MCP declaration
+├── AGENTS.md / CLAUDE.md             # repository agent instructions
+└── pyproject.toml
 ```
+
+## Search and discovery
+
+Recommended repository name: `oxoxos-cocos-game-assets-mcp`. Recommended GitHub topics:
+
+`cocos`, `cocos-creator`, `game-assets`, `mcp`, `model-context-protocol`, `image-generation`, `vision`, `ai-game-development`, `python`, `fastmcp`, `claude-code`, `codex`, `zcode`, `oxoxos`.
+
+Use relevant topics only. This repository does not claim an official Cocos relationship.
+
+## License
+
+Apache-2.0. See [`LICENSE`](LICENSE).

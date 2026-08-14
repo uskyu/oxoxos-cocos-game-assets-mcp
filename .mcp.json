@@ -1,15 +1,3 @@
 {
-  "mcpServers": {
-    "qweapi-image-gen": {
-      "type": "stdio",
-      "command": "${ZCODE_PLUGIN_ROOT}/.venv/Scripts/python.exe",
-      "args": ["${ZCODE_PLUGIN_ROOT}/mcp/server.py"],
-      "env": {
-        "QWAPI_API_KEY": "${user_config.api_key}",
-        "QWAPI_VISION_MODEL": "${user_config.vision_model}"
-      },
-      "enabled": true,
-      "timeoutMs": 60000
-    }
-  }
+  "mcpServers": {}
 }

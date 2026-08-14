@@ -1,12 +1,56 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
 [project]
-name = "image-gen-mcp"
-version = "0.1.0"
-description = "Add your description here"
+name = "oxoxos-cocos-game-assets-mcp"
+version = "0.4.0"
+description = "Independent Cocos-oriented MCP server for AI game asset generation, vision analysis, and local sprite processing via OXOXOS."
 readme = "README.md"
 requires-python = ">=3.13"
+license = { text = "Apache-2.0" }
+authors = [{ name = "VSAI / 0X0X0S" }]
+keywords = [
+    "cocos",
+    "cocos-creator",
+    "game-assets",
+    "image-generation",
+    "mcp",
+    "model-context-protocol",
+    "vision",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Multimedia :: Graphics",
+]
 dependencies = [
     "fastmcp",
     "httpx",
     "pillow",
     "python-dotenv",
 ]
+
+[project.urls]
+Homepage = "https://api.oxoxos.com"
+Documentation = "https://api.oxoxos.com"
+
+[project.scripts]
+oxoxos-cocos-game-assets-mcp = "oxoxos_cocos_game_assets_mcp.server:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.12",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/oxoxos_cocos_game_assets_mcp"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
