@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="720" viewBox="0 0 1600 720" role="img" aria-labelledby="title desc">
+  <title id="title">OXOXOS Cocos Game Assets MCP workflow</title>
+  <desc id="desc">Coding agents call the MCP, which combines live model discovery, remote image and vision models, and local image processing before saving game-ready assets into a Cocos Creator project.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#020817"/>
+      <stop offset="1" stop-color="#071b34"/>
+    </linearGradient>
+    <linearGradient id="mcp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b3154"/>
+      <stop offset="1" stop-color="#061b31"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M0,0 L12,6 L0,12 Z" fill="#30d5ff"/>
+    </marker>
+    <style>
+      .title { font: 700 34px Inter,Segoe UI,Arial,sans-serif; fill: #fff; }
+      .subtitle { font: 400 20px Inter,Segoe UI,Arial,sans-serif; fill: #9fb3ca; }
+      .node-title { font: 700 25px Inter,Segoe UI,Arial,sans-serif; fill: #fff; }
+      .node-copy { font: 400 17px Inter,Segoe UI,Arial,sans-serif; fill: #b8c9dc; }
+      .chip { font: 600 15px Inter,Segoe UI,Arial,sans-serif; fill: #dff8ff; }
+      .label { font: 600 16px Inter,Segoe UI,Arial,sans-serif; fill: #30d5ff; }
+      .box { fill: #08192d; stroke: #1c5273; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="1600" height="720" rx="28" fill="url(#bg)"/>
+  <g opacity=".18" fill="#30d5ff">
+    <rect x="42" y="42" width="8" height="8"/><rect x="70" y="42" width="8" height="8"/><rect x="98" y="42" width="8" height="8"/>
+    <rect x="1490" y="650" width="8" height="8"/><rect x="1518" y="650" width="8" height="8"/><rect x="1546" y="650" width="8" height="8"/>
+  </g>
+
+  <text x="64" y="66" class="title">From one prompt to Cocos-ready game assets</text>
+  <text x="64" y="100" class="subtitle">Generation, visual inspection, reference editing and deterministic local processing in one agent workflow.</text>
+
+  <path d="M348 360 H455" fill="none" stroke="#30d5ff" stroke-width="4" marker-end="url(#arrow)" filter="url(#glow)"/>
+  <path d="M875 300 C940 300 952 235 1010 235" fill="none" stroke="#30d5ff" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M875 420 C940 420 952 505 1010 505" fill="none" stroke="#30d5ff" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M1320 235 C1385 235 1385 360 1420 360" fill="none" stroke="#30d5ff" stroke-width="4" marker-end="url(#arrow)"/>
+  <path d="M1320 505 C1385 505 1385 360 1420 360" fill="none" stroke="#30d5ff" stroke-width="4" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect class="box" x="64" y="235" width="284" height="250" rx="24"/>
+    <rect x="92" y="266" width="54" height="54" rx="14" fill="#102c49" stroke="#30d5ff" stroke-width="2"/>
+    <path d="M108 287 h22 M108 299 h14 M108 311 h18" stroke="#30d5ff" stroke-width="4" stroke-linecap="round"/>
+    <text x="92" y="358" class="node-title">Coding Agent</text>
+    <text x="92" y="395" class="node-copy">Claude Code · Codex · ZCode</text>
+    <text x="92" y="428" class="node-copy">or any MCP-compatible client</text>
+    <text x="92" y="463" class="label">Natural-language task</text>
+  </g>
+
+  <g>
+    <rect x="455" y="190" width="420" height="340" rx="28" fill="url(#mcp)" stroke="#30d5ff" stroke-width="3" filter="url(#glow)"/>
+    <text x="490" y="238" class="label">OXOXOS</text>
+    <text x="490" y="278" class="node-title">Cocos Game Assets MCP</text>
+    <text x="490" y="312" class="node-copy">Chooses tools, tracks files and returns paths</text>
+    <g>
+      <rect x="490" y="350" width="142" height="36" rx="18" fill="#0b4262"/><text x="509" y="374" class="chip">list_models</text>
+      <rect x="644" y="350" width="176" height="36" rx="18" fill="#0b4262"/><text x="663" y="374" class="chip">generate_image</text>
+      <rect x="490" y="398" width="166" height="36" rx="18" fill="#0b4262"/><text x="509" y="422" class="chip">describe_image</text>
+      <rect x="668" y="398" width="152" height="36" rx="18" fill="#0b4262"/><text x="687" y="422" class="chip">check_task</text>
+      <rect x="490" y="446" width="330" height="36" rx="18" fill="#142944"/><text x="509" y="470" class="chip">crop · resize · convert · slice sprites</text>
+    </g>
+    <text x="490" y="510" class="label">One closed asset loop</text>
+  </g>
+
+  <g>
+    <rect class="box" x="1010" y="145" width="310" height="180" rx="24"/>
+    <circle cx="1052" cy="190" r="19" fill="#ff324f" opacity=".9"/>
+    <text x="1085" y="198" class="node-title">Remote AI Models</text>
+    <text x="1040" y="238" class="node-copy">Image generation · Vision analysis</text>
+    <text x="1040" y="270" class="node-copy">Reference-image editing</text>
+    <text x="1040" y="301" class="label">Live model discovery</text>
+  </g>
+
+  <g>
+    <rect class="box" x="1010" y="415" width="310" height="180" rx="24"/>
+    <rect x="1033" y="457" width="38" height="38" rx="9" fill="#0b4262" stroke="#30d5ff" stroke-width="2"/>
+    <path d="M1042 467 h20 v18 h-20z M1047 462 v28 M1057 462 v28" fill="none" stroke="#30d5ff" stroke-width="2"/>
+    <text x="1085" y="483" class="node-title">Local Processing</text>
+    <text x="1040" y="525" class="node-copy">Inspect · Crop · Resize · Convert</text>
+    <text x="1040" y="557" class="node-copy">Uniform sprite-sheet slicing</text>
+    <text x="1040" y="585" class="label">Deterministic Pillow tools</text>
+  </g>
+
+  <g>
+    <rect x="1420" y="255" width="140" height="210" rx="24" fill="#0a2842" stroke="#ff324f" stroke-width="3"/>
+    <rect x="1460" y="292" width="60" height="74" rx="8" fill="#112f4b" stroke="#30d5ff" stroke-width="2"/>
+    <path d="M1471 350 l14-18 12 10 12-15" fill="none" stroke="#30d5ff" stroke-width="3"/>
+    <circle cx="1478" cy="312" r="6" fill="#ff324f"/>
+    <text x="1490" y="400" text-anchor="middle" class="node-title">Cocos</text>
+    <text x="1490" y="430" text-anchor="middle" class="node-copy">Creator</text>
+    <text x="1490" y="452" text-anchor="middle" class="label">Assets</text>
+  </g>
+
+  <text x="382" y="340" class="label">MCP calls</text>
+  <text x="910" y="274" class="label">API</text>
+  <text x="900" y="465" class="label">Local</text>
+</svg>
