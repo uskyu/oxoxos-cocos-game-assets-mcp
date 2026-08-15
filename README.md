@@ -1,25 +1,58 @@
+<p align="center">
+  <img src="docs/images/readme-hero.webp" alt="OXOXOS Cocos Game Assets MCP" width="100%">
+</p>
+
 <h1 align="center" id="top">OXOXOS Cocos Game Assets MCP</h1>
 
-<p align="center"><strong>AI 游戏素材生成 · 视觉分析 · 参考图编辑 · 精灵图处理，为 Cocos Creator 工作流打造</strong><br>
-AI game asset generation, vision analysis, reference editing and sprite processing for Cocos Creator workflows.</p>
+<p align="center">
+  <strong>让编码智能体完成游戏素材生成、视觉质检、参考图编辑与精灵图处理，为 Cocos Creator 提供完整的 AI 素材工作流。</strong>
+</p>
 
 <p align="center">
-  <a href="#中文"><strong>中文</strong></a> · <a href="#english"><strong>English</strong></a>
+  <a href="README.md"><strong>简体中文</strong></a> · <a href="README.en.md">English</a>
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/license-Apache--2.0-30d5ff" alt="Apache-2.0 License">
+  <img src="https://img.shields.io/badge/Python-3.13%2B-3776ab" alt="Python 3.13+">
+  <img src="https://img.shields.io/badge/MCP-compatible-ff324f" alt="MCP compatible">
 </p>
 
 > [!NOTE]
-> 独立社区项目，与 Cocos 无隶属或背书关系。“Cocos”“Cocos Creator”为其各自所有者的商标。
-> Independent community project, not affiliated with or endorsed by Cocos. “Cocos” and “Cocos Creator” are trademarks of their respective owners.
+> 本项目是独立社区项目，与 Cocos 无隶属或背书关系。“Cocos”“Cocos Creator”为其各自所有者的商标。
 
----
+## 先看效果
 
-## 中文
+<p align="center">
+  <img src="docs/images/gameplay-demo.webp" alt="AI 自动化游戏开发真实运行演示" width="800">
+</p>
 
-### AI 全自动安装（推荐，最快 5 分钟）
+真实录屏经过裁剪和压缩：素材由 AI 生成，游戏代码由编码智能体编写，最终直接在 Cocos Creator 中运行。本 MCP 负责其中的**素材生成、视觉理解、参考图编辑和本地图片处理**。
 
-仓库地址：<https://github.com/uskyu/oxoxos-cocos-game-assets-mcp>
+<p align="center">
+  <img src="docs/images/gameplay-showcase.webp" alt="四个可运行关卡的真实画面" width="100%">
+</p>
 
-把下面这段提示词交给 AI 即可。安装、客户端识别、备份、令牌初始化和验证规则都已经写在仓库指导文件中，不需要在提示词里重复。
+## 它解决什么问题
+
+编码型 AI 做游戏时，通常不止需要“生成一张图”。它还要发现当前可用模型、检查生成结果、根据参考图继续编辑、统一尺寸、裁切精灵图，并把文件送进游戏工程。
+
+本项目把这条闭环封装为一组 MCP 工具，供 Claude Code、Codex、ZCode 及其他 MCP 客户端调用，并基于 [OXOXOS API](https://api.oxoxos.com) 提供生成与视觉能力。
+
+- **实时模型发现**：运行时查询 OXOXOS 模型广场，模型 id 不写死。
+- **图像生成与编辑**：使用 OpenAI 兼容图像接口，支持本地参考图。
+- **视觉分析**：给不具备视觉能力的智能体补充“眼睛”，也可用于素材质检。
+- **本地素材处理**：读取信息、裁剪、缩放、格式转换、精灵图切帧。
+- **并发本地任务**：`wait=false` 时可并行发起多个生成任务。
+- **AI 引导安装**：自动识别客户端、备份配置、保存令牌并完成验证。
+
+<p align="center">
+  <img src="docs/images/workflow.svg" alt="OXOXOS Cocos Game Assets MCP 工作流" width="100%">
+</p>
+
+## AI 全自动安装
+
+把下面这段提示词交给 AI 即可。安装、客户端识别、配置备份、令牌初始化和验证规则都已经写在仓库内。
 
 ```text
 请安装并配置这个项目：
@@ -29,68 +62,48 @@ https://github.com/uskyu/oxoxos-cocos-game-assets-mcp
 ```
 
 > [!TIP]
-> AI 自主安装不是静默改动：修改你的配置前会先展示一次计划并获得授权；获批后则全自动完成，不再把配置工作退回给你。
+> AI 修改配置前会先展示计划并请求授权；获批后会自动完成配置和验证，不需要你手动编辑 JSON、TOML 或 `.env`。
 
-### 令牌初始化对话（安装后）
+### 初始化 OXOXOS API
 
-安装完成后，你只需要对 AI 说一句话：
+安装完成后，对 AI 说：
 
 > **“初始化 OXOXOS API 配置”**
 
-AI 会按以下流程处理：
+AI 会自动完成：
 
-1. 检查令牌是否已配置（只做存在性检查，不读取令牌值）。
-2. 若缺失，引导你前往 <https://api.oxoxos.com> 注册 / 登录，点击左侧「令牌管理」（<https://api.oxoxos.com/console/token>），创建令牌。
-3. 你在受信任的本地安装会话中把令牌交给 AI 后，它会自动保存到仓库外的用户私有凭据文件或客户端安全存储中——不回显，不写入命令行参数、日志、源码或 Git。
-4. 保存后自动验证：启动 MCP 服务、枚举工具列表、调用 `list_models` 确认 API 连通。
-5. 最后向你报告配置范围与验证结果。
+1. 只检查令牌是否存在，不读取或回显令牌值。
+2. 若缺失，引导你前往 [OXOXOS](https://api.oxoxos.com) 注册，并在[令牌管理](https://api.oxoxos.com/console/token)中创建令牌。
+3. 将令牌保存到仓库外的用户私有凭据文件或客户端安全存储。
+4. 启动 MCP 服务、枚举工具并调用 `list_models` 验证连通性。
+5. 报告配置范围、验证结果和回滚位置。
 
-**示例对话：**
-
-> 你：初始化 OXOXOS API 配置
-> AI：好的。目前未检测到令牌。请前往 https://api.oxoxos.com 注册/登录，点击左侧「令牌管理」，创建一个令牌后发给我。
-> 你：（粘贴令牌）
-> AI：已安全保存并验证通过——服务启动成功，工具列表正常，`list_models` 返回当前模型广场列表。可以直接开始生成素材了。
-
-### 项目介绍
-
-编码型 AI 做游戏时，通常不止需要生图：它还要发现当前可用模型、审视生成结果、基于参考图编辑、统一尺寸、裁剪精灵图，并把文件送进游戏工程。本项目把这个闭环封装成一组 MCP 工具，供 Claude Code、Codex、ZCode 及其他 MCP 客户端调用，基于 [OXOXOS API](https://api.oxoxos.com) 提供能力。
-
-### 能力
-
-- **实时模型发现** —— 运行时查询 OXOXOS 模型广场，模型 id 不写死。
-- **图像生成** —— OpenAI 兼容图像接口，支持参考图编辑。
-- **视觉分析** —— 无视觉能力的智能体可通过当前视觉模型审视本地图片。
-- **本地素材处理** —— 图片信息、裁剪、缩放、格式转换、精灵图切帧（基于 Pillow）。
-- **并发本地任务** —— `wait=false` 时以本地后台线程并发执行同步 API 调用。
-- **智能体引导安装** —— 仓库内置 Skill 可先探测 Claude Code、Codex、ZCode 及通用 MCP 环境，再自动配置。
-
-### 工具
+## MCP 工具
 
 | 工具 | 用途 |
 |---|---|
 | `list_models` | 获取当前模型广场列表及推断的能力提示 |
 | `generate_image` | 生成或编辑图片；支持本地后台任务 |
-| `check_task` | 查询本地任务状态：`running` / `done` / `error` |
+| `check_task` | 查询后台任务状态：`running` / `done` / `error` |
 | `describe_image` | 分析本地图片并返回文本 |
 | `get_image_info` | 读取格式、尺寸、颜色模式、文件大小 |
 | `crop_image` | 按 `[left, top, right, bottom]` 裁剪 |
-| `resize_image` | 拉伸 / 完整放入 / 裁剪填充式缩放 |
-| `convert_image` | PNG、JPEG、WebP、BMP、GIF 格式转换 |
+| `resize_image` | 拉伸、完整放入或裁剪填充式缩放 |
+| `convert_image` | 转换 PNG、JPEG、WebP、BMP、GIF |
 | `slice_sprite_sheet` | 把均匀精灵图切成 PNG 单帧 |
 
-资源：`assets://list` 列出默认本地素材目录下的文件。
+资源 `assets://list` 可列出默认本地素材目录中的文件。
 
-### 支持客户端
+## 支持的客户端
 
-内置安装 Skill 支持以下客户端，并在配置前先备份现有配置：
+内置安装 Skill 会先备份现有配置，再配置以下客户端：
 
 - Claude Code
 - OpenAI Codex
-- ZCode（内置插件清单 `.zcode-plugin/plugin.json`）
+- ZCode（内置 `.zcode-plugin/plugin.json`）
 - 通用 MCP 客户端（`.mcp.json`）
 
-**环境变量：**
+### 环境变量
 
 | 变量 | 用途 | 默认值 |
 |---|---|---|
@@ -104,34 +117,40 @@ AI 会按以下流程处理：
 | `OXOXOS_TOKEN_URL` | 令牌管理入口 | `https://api.oxoxos.com/console/token` |
 
 > [!NOTE]
-> 已弃用的 `QWAPI_API_KEY` / `QWAPI_IMAGE_MODEL` / `QWAPI_VISION_MODEL` / `QWAPI_PROXY` 仅在一个迁移周期内保留兼容。
+> 已弃用的 `QWAPI_*` 变量仅在一个迁移周期内保留兼容。
 
-### 动态模型
+## 动态模型
 
-模型广场随时可能变化。`list_models` 返回当前列表及由模型元数据推断的能力提示，这些提示并非永久保证。可复现的生产流程建议：
+模型广场会持续变化。可复现的生产流程建议：
 
-1. 调用 `list_models(force_refresh=true)`；
-2. 按当前文档确认所选模型具备所需能力；
-3. 把该模型 id 显式传给 `generate_image` 或 `describe_image`。
+1. 调用 `list_models(force_refresh=true)`。
+2. 根据当前模型文档确认所需能力。
+3. 将模型 id 显式传给 `generate_image` 或 `describe_image`。
 
-若 `model` 留空，MCP 自动选择第一个推断候选；你也可以本地覆盖模型而不提交到仓库。
+若 `model` 留空，MCP 会自动选择第一个推断候选；能力提示来自模型元数据，并非永久保证。
 
-### 手动安装（次要）
+## 手动安装
 
-自动安装通常已足够；需要手动操作时，见 [`docs/installation.md`](docs/installation.md)：
+自动安装通常已足够；如需手动配置，请查看 [`docs/installation.md`](docs/installation.md)：
 
 - [Claude Code](docs/clients/claude-code.md)
 - [OpenAI Codex](docs/clients/codex.md)
 - [ZCode](docs/clients/zcode.md)
 - [通用 MCP 客户端](docs/clients/generic.md)
 
-### 更新与卸载
+## 更新与卸载
 
-**更新：** 让 AI 执行 `python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/update.py --plan`。获批后，更新器会拒绝覆盖未提交的改动、创建本地备份标签、以 `--ff-only` 拉取并 `uv sync`，且不触碰仓库外的私有凭据文件。
+**更新：** 让 AI 执行：
 
-**卸载：** 从客户端配置中移除 `oxoxos-cocos-game-assets` 服务条目，恢复更新前的备份，并按需删除仓库外的私有凭据文件。
+```bash
+python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/update.py --plan
+```
 
-### 开发
+更新器会拒绝覆盖未提交的改动、创建本地备份标签、使用 `--ff-only` 拉取并运行 `uv sync`，且不会触碰仓库外的私有凭据。
+
+**卸载：** 从客户端配置中移除 `oxoxos-cocos-game-assets` 服务条目，恢复备份，并按需删除仓库外的私有凭据文件。
+
+## 开发
 
 ```bash
 uv sync --group dev
@@ -141,151 +160,18 @@ python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/doctor.py --j
 ```
 
 > [!WARNING]
-> 测试不会调用付费生成接口。`mcp/test_api.py` 与 `mcp/test_mcp.py` 是手工集成探针，可能消耗 API 额度，请先审查再运行。
+> 自动测试不会调用付费接口。`mcp/test_api.py` 与 `mcp/test_mcp.py` 是手工集成探针，可能消耗 API 额度，请先审查再运行。
 
-### 贡献
+## 贡献与安全
 
-欢迎提交 PR。请先阅读 [`CONTRIBUTING.md`](CONTRIBUTING.md)。核心代码位于 `src/oxoxos_cocos_game_assets_mcp/`；不要重命名现有 MCP 工具，也不要改变其 JSON 成功/失败结构。
+- 欢迎提交 PR，请先阅读 [`CONTRIBUTING.md`](CONTRIBUTING.md)。
+- 核心代码位于 `src/oxoxos_cocos_game_assets_mcp/`。
+- 不要重命名现有 MCP 工具，也不要改变其 JSON 成功 / 失败结构。
+- 不要把令牌发布到公开 Issue、公共聊天、日志、源码或 Git。
+- 漏洞请私下报告，详见 [`SECURITY.md`](SECURITY.md)。
 
-### 安全
-
-- 令牌只在受信任的本地 AI 安装会话中提供一次；不要发布到公开 Issue、公共聊天、日志、源码或 Git。
-- 发现漏洞请私信报告，详见 [`SECURITY.md`](SECURITY.md)。
-
-### 许可证
+## 许可证
 
 Apache-2.0，详见 [`LICENSE`](LICENSE)。
 
 [返回顶部](#top)
-
----
-
-## English
-
-### AI Auto-Install (Recommended)
-
-Repository: <https://github.com/uskyu/oxoxos-cocos-game-assets-mcp>
-
-Give the short prompt below to the AI. Installation, client detection, backups, token onboarding, and verification rules already live in the repository guidance.
-
-```text
-Please install and configure this project:
-https://github.com/uskyu/oxoxos-cocos-game-assets-mcp
-
-Read AGENTS.md and the installation Skill first, then complete setup and initialization autonomously.
-```
-
-> [!TIP]
-> AI-driven install is not silent: it shows a plan and waits for approval before touching your configuration; once approved, it finishes the job without handing config work back to you.
-
-### Token Onboarding (after install)
-
-Once installed, just tell the AI:
-
-> **"Initialize OXOXOS API configuration."**
-
-The AI will:
-
-1. Check whether a token is configured (existence check only — never reads the value).
-2. If missing, walk you through <https://api.oxoxos.com>: register/login, open "Token Management" in the left sidebar (<https://api.oxoxos.com/console/token>), create a token.
-3. Save it automatically to a per-user credential file outside the repository or the client's secret storage — never in command arguments, chat logs, or Git.
-4. Verify: start the MCP server, enumerate tools, call `list_models`.
-5. Report the config scope and verification result.
-
-### About
-
-A coding agent building a game needs more than image generation: it must discover current models, inspect results, edit from a reference, normalize dimensions, crop sprites, and deliver files into the project. This MCP exposes that loop as tools for Claude Code, Codex, ZCode, and other MCP clients, powered by the [OXOXOS API](https://api.oxoxos.com).
-
-### Features
-
-- **Live model discovery** — queries the OXOXOS model marketplace at runtime; ids are not hardcoded.
-- **Image generation** — OpenAI-compatible endpoint with reference-image editing.
-- **Vision analysis** — non-visual agents can inspect local images via a current vision model.
-- **Local asset processing** — info, crop, resize, convert, sprite-sheet slicing (Pillow).
-- **Concurrent local tasks** — `wait=false` runs synchronous calls in local background threads.
-- **Agent-guided installation** — a repository Skill inspects Claude Code, Codex, ZCode, and generic MCP environments before configuring them.
-
-### Tools
-
-| Tool | Purpose |
-|---|---|
-| `list_models` | Current marketplace models and inferred capability hints |
-| `generate_image` | Generate or edit images; local background tasks supported |
-| `check_task` | Read local task status: `running`, `done`, `error` |
-| `describe_image` | Analyze a local image, return text |
-| `get_image_info` | Format, dimensions, color mode, file size |
-| `crop_image` | Crop by `[left, top, right, bottom]` |
-| `resize_image` | Stretch, contain, or cover resize |
-| `convert_image` | Convert PNG / JPEG / WebP / BMP / GIF |
-| `slice_sprite_sheet` | Split a uniform sprite sheet into PNG frames |
-
-Resource: `assets://list` lists files in the default local asset directory.
-
-### Supported Clients
-
-- Claude Code
-- OpenAI Codex
-- ZCode (bundled `.zcode-plugin/plugin.json`)
-- Generic MCP clients (`.mcp.json`)
-
-**Environment variables:**
-
-| Variable | Purpose | Default |
-|---|---|---|
-| `OXOXOS_BASE_URL` | OpenAI-compatible API base URL | `https://api.oxoxos.com/v1` |
-| `OXOXOS_API_KEY` | Access token | required |
-| `OXOXOS_IMAGE_MODEL` | Optional image model override | dynamic |
-| `OXOXOS_VISION_MODEL` | Optional vision model override | dynamic |
-| `OXOXOS_PROXY` | Optional HTTP proxy | empty |
-| `OXOXOS_BRAND_NAME` | Fork brand name | `OXOXOS` |
-| `OXOXOS_PORTAL_URL` | Registration / login portal | `https://api.oxoxos.com` |
-| `OXOXOS_TOKEN_URL` | Token management URL | `https://api.oxoxos.com/console/token` |
-
-> [!NOTE]
-> Deprecated `QWAPI_*` variables remain for one migration cycle only.
-
-### Dynamic Models
-
-The marketplace changes. `list_models` returns the current list with capability hints inferred from metadata — not a permanent guarantee. For a reproducible production workflow:
-
-1. call `list_models(force_refresh=true)`;
-2. confirm the model's capability against current docs;
-3. pass its id explicitly to `generate_image` / `describe_image`.
-
-An empty `model` picks the first inferred candidate; local overrides are supported.
-
-### Manual Install (secondary)
-
-Auto-install is usually enough. For manual steps see [`docs/installation.md`](docs/installation.md): [Claude Code](docs/clients/claude-code.md) · [OpenAI Codex](docs/clients/codex.md) · [ZCode](docs/clients/zcode.md) · [Generic MCP](docs/clients/generic.md).
-
-### Update & Uninstall
-
-**Update:** ask the AI to run `python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/update.py --plan`. After approval, it refuses to overwrite uncommitted work, creates a backup tag, pulls with `--ff-only`, runs `uv sync`, and leaves per-user credentials untouched.
-
-**Uninstall:** remove the `oxoxos-cocos-game-assets` entry from your client config, restore the backup, and delete the per-user credential file if desired.
-
-### Development
-
-```bash
-uv sync --group dev
-uv run pytest
-uv run ruff check .
-python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/doctor.py --json
-```
-
-> [!WARNING]
-> Tests never call paid endpoints. `mcp/test_api.py` and `mcp/test_mcp.py` are manual integration probes that may consume API credit.
-
-### Contributing
-
-See [`CONTRIBUTING.md`](CONTRIBUTING.md). Core code lives in `src/oxoxos_cocos_game_assets_mcp/`. Do not rename existing MCP tools or change their JSON success/error shapes.
-
-### Security
-
-Provide the token once only in a trusted local AI installation session. Never publish it in public issues, shared chats, logs, source, or Git. Report vulnerabilities privately; see [`SECURITY.md`](SECURITY.md).
-
-### License
-
-Apache-2.0. See [`LICENSE`](LICENSE).
-
-[Back to top](#top)
