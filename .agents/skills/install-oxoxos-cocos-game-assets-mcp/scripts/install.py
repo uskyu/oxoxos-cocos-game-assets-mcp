@@ -290,6 +290,20 @@ def plan(requested: list[str]) -> dict[str, Any]:
     }
 
 
+def configure_token_only() -> dict[str, Any]:
+    stored = store_token(read_token_from_stdin())
+    return {
+        "ok": True,
+        "mode": "token-only",
+        "credential_file": str(stored),
+        "credential_updated": True,
+        "next": (
+            "restart the bundled MCP or start a fresh client session, then call "
+            "list_models(force_refresh=true)"
+        ),
+    }
+
+
 def apply(
     requested: list[str],
     token_stdin: bool,
@@ -350,6 +364,7 @@ def main() -> None:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--plan", action="store_true")
     mode.add_argument("--apply", action="store_true")
+    mode.add_argument("--token-only", action="store_true")
     parser.add_argument(
         "--client",
         action="append",
@@ -363,16 +378,19 @@ def main() -> None:
     args = parser.parse_args()
 
     try:
-        result = (
-            plan(args.client)
-            if args.plan
-            else apply(
+        if args.plan:
+            result = plan(args.client)
+        elif args.token_only:
+            if not args.token_stdin:
+                raise InstallError("--token-only 必须与 --token-stdin 一起使用")
+            result = configure_token_only()
+        else:
+            result = apply(
                 args.client,
                 args.token_stdin,
                 args.use_existing_token,
                 args.defer_token,
             )
-        )
     except (InstallError, OSError, ValueError) as exc:
         result = {"ok": False, "error": str(exc)}
     print(json.dumps(result, ensure_ascii=False, indent=2))

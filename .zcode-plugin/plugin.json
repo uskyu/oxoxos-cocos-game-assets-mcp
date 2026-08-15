@@ -5,10 +5,11 @@
     "en": "Independent Cocos-oriented game asset MCP powered by OXOXOS: live model discovery, image generation, vision analysis, reference editing, and local sprite processing.",
     "zh-CN": "面向 Cocos Creator 与 AI 游戏开发的独立素材 MCP：接入 OXOXOS 动态模型广场，提供生图、识图、参考图编辑和本地精灵图处理。非 Cocos 官方项目。"
   },
-  "version": "0.4.0",
+  "version": "0.4.1",
   "author": {
     "name": "VSAI / 0X0X0S"
   },
+  "skills": ".agents/skills",
   "keywords": [
     "cocos",
     "cocos-creator",
@@ -21,12 +22,6 @@
     "oxoxos"
   ],
   "userConfig": {
-    "api_key": {
-      "title": "OXOXOS API Token",
-      "description": "Optional UI entry. The automated installer can securely store the token in the current user's private OXOXOS credential file instead.",
-      "type": "string",
-      "required": false
-    },
     "image_model": {
       "title": "Image model override",
       "description": "Optional model id. Leave empty to discover a current image model from the OXOXOS marketplace.",

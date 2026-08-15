@@ -6,6 +6,9 @@ All notable changes follow a simplified Keep a Changelog format.
 
 ### Added
 
+- Repository-root `marketplace.json` for direct ZCode Marketplace discovery and installation.
+- ZCode plugin MCP startup through `uv`, so a fresh cache install does not depend on a prebuilt `.venv`.
+- Explicit plugin discovery of the cross-agent installation Skill under `.agents/skills`.
 - Cross-agent installation Skill for Claude Code, Codex, ZCode, and generic MCP clients.
 - Dynamic OXOXOS model discovery and optional model overrides.
 - Standard Python `src/` package layout, CLI entry point, offline tests, and open-source governance files.

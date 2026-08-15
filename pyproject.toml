@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "oxoxos-cocos-game-assets-mcp"
-version = "0.4.0"
+version = "0.4.1"
 description = "Independent Cocos-oriented MCP server for AI game asset generation, vision analysis, and local sprite processing via OXOXOS."
 readme = "README.md"
 requires-python = ">=3.13"

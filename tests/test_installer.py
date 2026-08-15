@@ -47,3 +47,21 @@ def test_apply_requires_an_explicit_token_mode(monkeypatch) -> None:
         assert "--defer-token" in str(exc)
     else:
         raise AssertionError("installer should require an explicit token mode")
+
+
+def test_token_only_stores_credential_without_installing_clients(monkeypatch, tmp_path) -> None:
+    credential = tmp_path / "credentials.env"
+    calls = []
+    monkeypatch.setattr(installer, "credential_file", lambda: credential)
+    monkeypatch.setattr(installer, "read_token_from_stdin", lambda: "test-token-value")
+    monkeypatch.setattr(installer, "install_dependencies", lambda: calls.append("dependencies"))
+    monkeypatch.setattr(installer, "detect_clients", lambda requested: calls.append("clients"))
+
+    report = installer.configure_token_only()
+
+    assert report["ok"] is True
+    assert report["mode"] == "token-only"
+    assert report["credential_file"] == str(credential)
+    assert credential.exists()
+    assert calls == []
+    assert "list_models" in report["next"]

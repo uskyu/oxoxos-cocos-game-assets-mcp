@@ -24,3 +24,5 @@ e2e_test_out/
 .idea/
 .DS_Store
 Thumbs.db
+nul
+NUL

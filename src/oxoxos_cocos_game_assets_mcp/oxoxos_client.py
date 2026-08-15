@@ -94,8 +94,9 @@ def token_setup_guide() -> dict[str, Any]:
             "将令牌发送给当前 AI 助手；AI 会自动保存、配置并验证 MCP",
         ],
         "ai_instruction": (
-            "收到用户明确提供的令牌后，运行仓库安装 Skill 的 install.py，"
-            "通过安全输入传递令牌；不要回显令牌，也不要让用户手工编辑 .env、JSON 或 TOML。"
+            "收到用户明确提供的令牌后，运行仓库安装 Skill 的 "
+            "install.py --token-only --token-stdin，通过安全输入传递令牌；"
+            "不要回显令牌，也不要让用户手工编辑 .env、JSON 或 TOML。"
         ),
         "customization": {
             "brand_env": "OXOXOS_BRAND_NAME",

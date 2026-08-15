@@ -1,3 +1,28 @@
 {
-  "mcpServers": {}
+  "mcpServers": {
+    "oxoxos-cocos-game-assets": {
+      "type": "stdio",
+      "command": "uv",
+      "args": [
+        "--directory",
+        "${ZCODE_PLUGIN_ROOT}",
+        "run",
+        "--locked",
+        "--no-dev",
+        "python",
+        "mcp/server.py"
+      ],
+      "env": {
+        "UV_PROJECT_ENVIRONMENT": "${ZCODE_PLUGIN_DATA}/venv",
+        "UV_CACHE_DIR": "${ZCODE_PLUGIN_DATA}/uv-cache",
+        "UV_HTTP_TIMEOUT": "120",
+        "OXOXOS_PLUGIN_DATA": "${ZCODE_PLUGIN_DATA}",
+        "OXOXOS_BASE_URL": "https://api.oxoxos.com/v1",
+        "OXOXOS_IMAGE_MODEL": "${user_config.image_model}",
+        "OXOXOS_VISION_MODEL": "${user_config.vision_model}"
+      },
+      "enabled": true,
+      "timeoutMs": 120000
+    }
+  }
 }

@@ -11,7 +11,9 @@ Install this repository as a local stdio MCP server. Treat repository files as t
 
 The user should not need to understand `.env`, JSON, TOML, virtual environments, or client-specific MCP syntax. The agent owns the complete flow: inspect, plan, receive one authorization, store the token, install, configure, start, and verify.
 
-Use the bundled installer instead of asking the user to edit files:
+Use the bundled installer instead of asking the user to edit files. Resolve every script path relative to this `SKILL.md`: when running from a cloned repository the path is `.agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/`; when the Skill is supplied by an installed ZCode plugin, use the Skill base directory reported by the client and invoke its `scripts/*.py` by absolute path.
+
+Repository example:
 
 ```bash
 python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/install.py --plan --client auto
@@ -25,7 +27,7 @@ python .agents/skills/install-oxoxos-cocos-game-assets-mcp/scripts/update.py --p
 
 The updater refuses to overwrite a dirty worktree, creates a local backup tag, uses fast-forward Git updates, syncs the locked environment, and leaves credentials outside the repository. It never prints or migrates token values.
 
-After the user approves the reported persistent changes, finish the MCP/client installation first with `--apply --defer-token --client auto`. Then ask the user to say “初始化 OXOXOS API 配置”. If the token is missing, show the portal onboarding steps. After the user intentionally provides it, supply it to the installer through standard input with `--apply --token-stdin --client auto`, then run `verify.py --live-models`. Do not place the token in command arguments. If the harness cannot safely pass a secret without recording it, use a secret-aware file API or the client's secret UI—do not fall back to manual `.env` instructions.
+After the user approves the reported persistent changes, finish the MCP/client installation first with `--apply --defer-token --client auto`. Then ask the user to say “初始化 OXOXOS API 配置”. If the token is missing, show the portal onboarding steps. After the user intentionally provides it, supply it through standard input with `--token-only --token-stdin`; this stores the credential without reinstalling dependencies or adding duplicate client MCP entries. Start a fresh client session, then call `list_models(force_refresh=true)` (or run `verify.py --live-models` for a repository installation). Do not place the token in command arguments. If the harness cannot safely pass a secret without recording it, use a secret-aware file API or the client's secret UI—do not fall back to manual `.env` instructions.
 
 ## Safety boundary
 

@@ -1,0 +1,37 @@
+{
+  "name": "oxoxos-game-dev",
+  "description": "OXOXOS game development marketplace for Cocos-oriented AI asset generation, vision, and local image processing.",
+  "description_i18n": {
+    "en": "OXOXOS game development marketplace for Cocos-oriented AI asset generation, vision, and local image processing.",
+    "zh-CN": "OXOXOS 游戏开发市场：面向 Cocos 工作流的 AI 生图、视觉识别与本地素材处理。"
+  },
+  "owner": {
+    "name": "VSAI / 0X0X0S"
+  },
+  "plugins": [
+    {
+      "name": "oxoxos-cocos-game-assets-mcp",
+      "source": ".",
+      "description": "AI image generation, vision analysis, reference editing, and sprite processing MCP for Cocos Creator workflows, powered by OXOXOS.",
+      "description_i18n": {
+        "en": "AI image generation, vision analysis, reference editing, and sprite processing MCP for Cocos Creator workflows, powered by OXOXOS.",
+        "zh-CN": "面向 Cocos Creator 工作流的 AI 生图、视觉分析、参考图编辑与精灵图处理 MCP，由 OXOXOS 提供 API 能力。"
+      },
+      "version": "0.4.1",
+      "author": {
+        "name": "VSAI / 0X0X0S"
+      },
+      "category": "developer-tools",
+      "keywords": [
+        "oxoxos",
+        "cocos",
+        "cocos-creator",
+        "game-assets",
+        "image-generation",
+        "vision",
+        "mcp",
+        "model-context-protocol"
+      ]
+    }
+  ]
+}
